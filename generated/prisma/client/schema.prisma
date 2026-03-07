@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  role     String @default("admin")
+}
+
+model Employee {
+  id               Int       @id @default(autoincrement())
+  employee_code    String    @unique
+  employee_name_th String
+  employee_name_en String?
+  gender           String?
+  position         String?
+  department       String?
+  work_location    String?
+  supervisor_name  String?
+  start_date       DateTime?
+  end_date         DateTime?
+  status           String?
+
+  training_records TrainingRecord[]
+
+  @@map("employees")
+}
+
+model CourseDescription {
+  id          Int    @id @default(autoincrement())
+  course_id   Int
+  description String @db.Text
+  course      Course @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@index([course_id])
+  @@map("course_descriptions")
+}
+
+model Course {
+  id                   Int                 @id @default(autoincrement())
+  course_code          String              @unique
+  course_name          String?
+  course_category      String?
+  training_type        String?
+  organizing_agency    String?
+  certificate_required Boolean             @default(false)
+  descriptions         CourseDescription[]
+
+  training_records TrainingRecord[]
+
+  @@index([course_code])
+  @@map("courses")
+}
+
+model TrainingRecord {
+  id              Int       @id @default(autoincrement())
+  employee_id     Int
+  course_id       Int
+  training_date   DateTime
+  training_hour   Float?
+  training_result String?
+  trainer_name    String?
+  location        String?
+  expire_date     DateTime?
+  attachment      String?
+  note            String?   @db.Text
+  created_by      String?
+  created_at      DateTime  @default(now())
+
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  course   Course   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@index([employee_id])
+  @@index([course_id])
+  @@map("training_records")
+}
