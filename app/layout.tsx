@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "ระบบบริหารจัดการการเรียนรู้และการอบรมพนักงาน",
 };
 
+import SessionProvider from "@/components/providers/SessionProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,7 +33,9 @@ export default function RootLayout({
       <body
         className={`${baiJamjuree.variable} ${baiJamjuree.className} font-sans antialiased`}
       >
-        {children}
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

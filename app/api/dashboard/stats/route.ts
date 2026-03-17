@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { getDashboardStats } from '@/lib/stats';
 
-export const GET = withAuth(async (req: Request) => {
+export const GET = auth(async (req) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     try {
         const stats = await getDashboardStats();
         return NextResponse.json(stats);

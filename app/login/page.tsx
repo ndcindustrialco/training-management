@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -18,24 +19,20 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+            const result = await signIn("credentials", {
+                username,
+                password,
+                redirect: false,
             });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                throw new Error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+            if (result?.error) {
+                setError("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+            } else {
+                router.push("/dashboard");
+                router.refresh();
             }
-
-            // Save user info to local storage for UI use (token is in HttpOnly cookie)
-            localStorage.setItem("user", JSON.stringify(data.user));
-
-            router.push("/dashboard");
         } catch (err: any) {
-            setError(err.message);
+            setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
         } finally {
             setLoading(false);
         }

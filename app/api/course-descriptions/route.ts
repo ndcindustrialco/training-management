@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 
-export const GET = withAuth(async (req: Request) => {
+export const GET = auth(async (req) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     try {
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1');
@@ -36,7 +37,8 @@ export const GET = withAuth(async (req: Request) => {
     }
 });
 
-export const POST = withAuth(async (req: Request) => {
+export const POST = auth(async (req) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     try {
         const data = await req.json();
         const desc = await prisma.courseDescription.create({

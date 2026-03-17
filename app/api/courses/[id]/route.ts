@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 
-export const GET = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) => {
+export const GET = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ id: string }> };
     try {
         const p = await params;
         const course = await prisma.course.findUnique({
@@ -21,10 +20,9 @@ export const GET = withAuth(async (
     }
 });
 
-export const PUT = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) => {
+export const PUT = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ id: string }> };
     try {
         const p = await params;
         const data = await req.json();
@@ -47,10 +45,9 @@ export const PUT = withAuth(async (
     }
 });
 
-export const DELETE = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) => {
+export const DELETE = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ id: string }> };
     try {
         const p = await params;
         await prisma.course.delete({ where: { id: parseInt(p.id) } });

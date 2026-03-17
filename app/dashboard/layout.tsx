@@ -1,37 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
+import { signOut } from "next-auth/react";
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const router = useRouter();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    useEffect(() => {
-        const user = localStorage.getItem("user");
-        if (!user) {
-            router.push("/login");
-        } else {
-            setIsAuthenticated(true);
-        }
-    }, [router]);
-
     const handleLogout = async () => {
-        try {
-            await fetch("/api/auth/logout", { method: "POST" });
-        } catch (e) {
-            console.error("Logout error", e);
-        }
-        localStorage.removeItem("user");
-        router.push("/login");
+        await signOut({ callbackUrl: "/" });
     };
-
-    if (!isAuthenticated) return null;
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col">

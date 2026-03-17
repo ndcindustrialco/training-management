@@ -1,66 +1,9 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
+import NextAuth from "next-auth";
+import { authConfig } from "./lib/auth.config";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'supersecret123');
-
-export async function middleware(request: NextRequest) {
-    let token = request.cookies.get('token')?.value;
-
-    // Fallback to query parameter (useful for PDF generation)
-    if (!token) {
-        token = request.nextUrl.searchParams.get('token') || undefined;
-    }
-
-    const { pathname } = request.nextUrl;
-
-    // Bypass authentication for PDF print pages to allow Puppeteer access
-    if (pathname.includes('/print')) {
-        return NextResponse.next();
-    }
-
-    // Protect dashboard routes
-    if (pathname.startsWith('/dashboard')) {
-        if (!token) {
-            return NextResponse.redirect(new URL('/', request.url));
-        }
-
-        try {
-            await jwtVerify(token, JWT_SECRET);
-            return NextResponse.next();
-        } catch (error) {
-            // Token invalid or expired
-            const response = NextResponse.redirect(new URL('/', request.url));
-            response.cookies.delete('token');
-            return response;
-        }
-    }
-
-    // Redirect login to dashboard if already authenticated
-    if (pathname === '/' && token) {
-        try {
-            await jwtVerify(token, JWT_SECRET);
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        } catch (error) {
-            // Token invalid, let them stay on login page
-        }
-    }
-
-    return NextResponse.next();
-}
+export default NextAuth(authConfig).auth;
 
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         */
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
-        '/',
-        '/login',
-        '/dashboard/:path*',
-    ],
+  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
 };

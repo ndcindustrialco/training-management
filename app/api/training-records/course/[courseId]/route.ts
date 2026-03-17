@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 
-export const GET = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ courseId: string }> }
-) => {
+export const GET = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ courseId: string }> };
     try {
         const { searchParams } = new URL(req.url);
         const page = parseInt(searchParams.get('page') || '1');

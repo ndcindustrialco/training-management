@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { uploadFile, deleteFile } from '@/lib/storage';
 
-export const GET = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) => {
+export const GET = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ id: string }> };
     try {
         const p = await params;
         const record = await prisma.trainingRecord.findUnique({
@@ -25,10 +24,9 @@ export const GET = withAuth(async (
     }
 });
 
-export const PUT = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) => {
+export const PUT = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ id: string }> };
     try {
         const p = await params;
         const targetId = parseInt(p.id);
@@ -87,10 +85,9 @@ export const PUT = withAuth(async (
     }
 });
 
-export const DELETE = withAuth(async (
-    req: Request,
-    { params }: { params: Promise<{ id: string }> }
-) => {
+export const DELETE = auth(async (req, ctx) => {
+    if (!req.auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { params } = ctx as { params: Promise<{ id: string }> };
     try {
         const p = await params;
         const targetId = parseInt(p.id);

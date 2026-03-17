@@ -1,52 +1,55 @@
-import jwt from 'jsonwebtoken';
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
+import Credentials from "next-auth/providers/credentials";
+import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret123';
+export const { 
+    handlers: { GET, POST }, 
+    auth, 
+    signIn, 
+    signOut 
+} = NextAuth({
+  ...authConfig,
+  secret: process.env.AUTH_SECRET,
+  trustHost: true,
+  providers: [
+    Credentials({
+      async authorize(credentials) {
+        const { username, password } = credentials;
 
-export const signToken = (payload: any) => {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
-};
+        if (!username || !password) return null;
 
-export const verifyToken = (token: string) => {
-    try {
-        return jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+        let user = await prisma.user.findUnique({
+          where: { username: username as string },
+        });
+
+        // Auto-create admin if not exists (mirroring current logic)
+        if (!user && username === "admin" && password === "admin") {
+          const hashedPassword = await bcrypt.hash("admin", 10);
+          user = await prisma.user.create({
+            data: {
+              username: "admin",
+              password: hashedPassword,
+              role: "admin",
+            },
+          });
+        }
+
+        if (!user) return null;
+
+        const passwordsMatch = await bcrypt.compare(password as string, user.password);
+
+        if (passwordsMatch) {
+          return {
+            id: user.id.toString(),
+            name: user.username,
+            role: user.role,
+          };
+        }
+
         return null;
-    }
-};
-
-export const getUser = async (req: Request) => {
-    let token = null;
-
-    // 1. Check cookies (Priority for HttpOnly)
-    try {
-        const cookieStore = await cookies();
-        token = cookieStore.get('token')?.value;
-    } catch (e) {
-        // cookies() might fail in some contexts, fallback to headers
-    }
-
-    // 2. Check Authorization header (Fallback)
-    if (!token) {
-        const authHeader = req.headers.get('authorization');
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-            token = authHeader.split(' ')[1];
-        }
-    }
-
-    if (!token) return null;
-    return verifyToken(token);
-};
-
-export function withAuth(handler: Function) {
-    return async (req: Request, ...args: any[]) => {
-        const user = await getUser(req);
-
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-
-        return handler(req, ...args);
-    };
-}
+      },
+    }),
+  ],
+});
