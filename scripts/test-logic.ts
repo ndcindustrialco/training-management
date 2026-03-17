@@ -1,4 +1,4 @@
-import { signToken, verifyToken } from '../lib/auth';
+import bcrypt from 'bcryptjs';
 import { Prisma } from '../generated/prisma/client';
 
 /**
@@ -30,18 +30,17 @@ function testDateParsing() {
 }
 
 /**
- * 2. Test JWT Signing and Verification
- * Ensures the auth system is robust
+ * 2. Test Password Hashing Logic (Bcrypt)
+ * Ensures passwords can be hashed and verified correctly
  */
-function testAuthLogic() {
-    console.log('\n--- 2. Testing JWT Auth Logic ---');
-    const payload = { userId: 1, role: 'admin' };
-    const token = signToken(payload);
-    console.log('Signed Token Generated.');
+async function testPasswordLogic() {
+    console.log('\n--- 2. Testing Password Hashing Logic (Bcrypt) ---');
+    const password = 'admin';
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Hashed Password Generated.');
 
-    const verified = verifyToken(token) as any;
-    const pass = verified && verified.userId === payload.userId && verified.role === payload.role;
-    console.log(`[${pass ? 'PASS' : 'FAIL'}] Verify Token: ${verified ? 'Valid' : 'Invalid'}`);
+    const isMatch = await bcrypt.compare(password, hashedPassword);
+    console.log(`[${isMatch ? 'PASS' : 'FAIL'}] Verify Hash: ${isMatch ? 'Match' : 'No Match'}`);
 }
 
 /**
@@ -77,8 +76,12 @@ function testFilterLogic() {
 /**
  * Main Run
  */
-console.log('Starting Logic Verification...');
-testDateParsing();
-testAuthLogic();
-testFilterLogic();
-console.log('\nLogic Verification Complete.');
+async function run() {
+    console.log('Starting Logic Verification...');
+    testDateParsing();
+    await testPasswordLogic();
+    testFilterLogic();
+    console.log('\nLogic Verification Complete.');
+}
+
+run().catch(console.error);
