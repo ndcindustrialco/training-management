@@ -26,18 +26,18 @@ export default function DashboardClient({ data }: { data: any }) {
     ];
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 text-slate-800 pb-10">
+        <div className="space-y-2 animate-in fade-in duration-500 text-slate-800 pb-10 sm:p-0 p-4">
             <div>
                 <h1 className="text-3xl font-bold text-primary tracking-tight">หน้าแรก (Dashboard)</h1>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2">
                 {statsCards.map((stat, i) => (
                     <StatsCard key={i} {...stat} />
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
                 <div className="lg:col-span-2">
                     <Card
                         title="กิจกรรมการอบรมล่าสุด"
@@ -56,7 +56,7 @@ export default function DashboardClient({ data }: { data: any }) {
                     </Card>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-2">
                     <DistributionCard
                         title="แผนก"
                         items={data.departments}
@@ -66,7 +66,7 @@ export default function DashboardClient({ data }: { data: any }) {
 
                     <DistributionCard
                         title="หมวดหมู่หลักสูตร"
-                        items={data.categories.slice(0, 5)}
+                        items={data.categories}
                         total={data.count.courses}
                         barColor="bg-blue-500"
                     />

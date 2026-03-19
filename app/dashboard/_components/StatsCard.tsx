@@ -8,11 +8,11 @@ interface StatsCardProps {
 
 export const StatsCard: React.FC<StatsCardProps> = ({ label, value, href }) => {
     const CardContent = (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all group cursor-pointer hover:-translate-y-1 active:scale-95">
+        <div className="bg-white rounded-2xl p-3 sm:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all group cursor-pointer hover:-translate-y-1 active:scale-95">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-xs font-semibold text-accent uppercase tracking-widest">{label}</p>
-                    <p className="text-4xl font-extrabold text-primary mt-2">{value.toLocaleString()}</p>
+                    <p className="text-[10px] sm:text-xs font-semibold text-accent uppercase tracking-widest">{label}</p>
+                    <p className="text-2xl sm:text-4xl font-extrabold text-primary mt-1 sm:mt-2">{value.toLocaleString()}</p>
                 </div>
             </div>
             {href && (

@@ -4,17 +4,17 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 // 2. กำหนดค่า localFont แทนที่ของเดิม
-const baiJamjuree = localFont({
-  src: [
-    {
-      path: "../public/fonts/BaiJamjuree-Light.ttf", // ตรวจสอบ Path ให้ถูกต้อง
-      weight: "300",
-      style: "normal",
-    },
-    // หากมีไฟล์ Weight อื่นๆ เช่น Bold สามารถเพิ่ม Object ลงใน Array นี้ได้เลย
-  ],
-  variable: "--font-bai-jamjuree",
-});
+  const baiJamjuree = localFont({
+    src: [
+      {
+        path: "../public/fonts/BaiJamjuree-Light.ttf", // ตรวจสอบ Path ให้ถูกต้อง
+        weight: "300",
+        style: "normal",
+      },
+      // หากมีไฟล์ Weight อื่นๆ เช่น Bold สามารถเพิ่ม Object ลงใน Array นี้ได้เลย
+    ],
+    variable: "--font-bai-jamjuree",
+  });
 
 export const metadata: Metadata = {
   title: "NDC Training Management System",
