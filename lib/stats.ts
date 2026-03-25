@@ -1,34 +1,38 @@
 import prisma from './prisma';
 
 export async function getDashboardStats() {
-    const [employees, courses, records] = await Promise.all([
+    const [
+        employees,
+        courses,
+        records,
+        recentRecords,
+        departmentStats,
+        categoryStats
+    ] = await Promise.all([
         prisma.employee.count(),
         prisma.course.count(),
-        prisma.trainingRecord.count()
-    ]);
-
-    const recentRecords = await prisma.trainingRecord.findMany({
-        take: 5,
-        orderBy: { created_at: 'desc' },
-        include: {
-            employee: { select: { employee_name_th: true, employee_code: true } },
-            course: {
-                include: {
-                    descriptions: true
+        prisma.trainingRecord.count(),
+        prisma.trainingRecord.findMany({
+            take: 5,
+            orderBy: { created_at: 'desc' },
+            include: {
+                employee: { select: { employee_name_th: true, employee_code: true } },
+                course: {
+                    include: {
+                        descriptions: true
+                    }
                 }
             }
-        }
-    });
-
-    const departmentStats = await prisma.employee.groupBy({
-        by: ['department'],
-        _count: { _all: true },
-    });
-
-    const categoryStats = await prisma.course.groupBy({
-        by: ['course_category'],
-        _count: { _all: true },
-    });
+        }),
+        prisma.employee.groupBy({
+            by: ['department'],
+            _count: { _all: true },
+        }),
+        prisma.course.groupBy({
+            by: ['course_category'],
+            _count: { _all: true },
+        })
+    ]);
 
     return {
         count: {

@@ -27,13 +27,14 @@ export default function LoginPage() {
 
             if (result?.error) {
                 setError("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+                setLoading(false);
             } else {
                 router.push("/dashboard");
                 router.refresh();
+                // We keep loading active during the redirect transition
             }
         } catch (err: any) {
             setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
-        } finally {
             setLoading(false);
         }
     };

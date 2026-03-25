@@ -31,4 +31,5 @@ export const authConfig = {
     },
   },
   providers: [], // Providers added in auth.ts to avoid Edge Runtime issues
+  secret: process.env.AUTH_SECRET,
 } satisfies NextAuthConfig;
